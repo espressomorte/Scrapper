@@ -1,18 +1,19 @@
 using Microsoft.Extensions.Options;
 using Serilog;
-using Scrapper.Services;
 
-public partial class MetricsCollectorService : BackgroundService
+namespace Scrapper.Services
+{
+    public partial class MetricsCollectorService : BackgroundService
 {
     private readonly HttpClient _httpClient = new();
     IMetricsProcessor _metricProcessor;
 
-public MetricsCollectorService(IMetricsProcessor metricProcessor) 
+    public MetricsCollectorService(IMetricsProcessor metricProcessor) 
     {
         _metricProcessor = metricProcessor;
 
     }
-       protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -29,8 +30,8 @@ public MetricsCollectorService(IMetricsProcessor metricProcessor)
             response.EnsureSuccessStatusCode();
 
             var metrics = await response.Content.ReadAsStringAsync();
-
-            var savedCount = await _metricProcessor.ProcessAndSaveMetricsAsync(metrics);
+            var timestamp = response.Headers.Date?.UtcDateTime ?? DateTime.UtcNow;
+            var savedCount = await _metricProcessor.ProcessAndSaveMetricsAsync(metrics, timestamp);
 
             Log.Information("Successfully saved {Count} metrics.", savedCount);
         }
@@ -39,4 +40,6 @@ public MetricsCollectorService(IMetricsProcessor metricProcessor)
             Log.Error(ex, "Error occurred while collecting or saving metrics.");
         }
     }
+}
+
 }

@@ -1,6 +1,8 @@
 using System.Diagnostics.Metrics;
+using Scrapper.Data;
+using Scrapper.Domain;
 using Serilog;
-using static MetricsCollectorService;
+using static Scrapper.Domain.MetricsCollectorService;
 
 namespace Scrapper.Services
 {
@@ -14,7 +16,7 @@ namespace Scrapper.Services
         _metricRepository = metricRepository;
     }
 
-    public async Task<int> ProcessAndSaveMetricsAsync(string metrics)
+    public async Task<int> ProcessAndSaveMetricsAsync(string metrics, DateTime timestamp)
     {
         var filtered = metrics
             .Split('\n', StringSplitOptions.RemoveEmptyEntries)
@@ -30,7 +32,7 @@ namespace Scrapper.Services
         {
             try
             {
-                var metric = ParseMetricLine(line);
+                var metric = ParseMetricLine(line, timestamp);
                 parsedMetrics.Add(metric);
             }
             catch (MetricParseException)
@@ -40,7 +42,7 @@ namespace Scrapper.Services
         }
         return await _metricRepository.SaveMetricsAsync(parsedMetrics);
     }
-    private Metric ParseMetricLine(string line)
+    private Metric ParseMetricLine(string line, DateTime timestamp)
     {
         var parts = line.Split(' ');
         if (parts.Length != 2)
@@ -85,7 +87,7 @@ namespace Scrapper.Services
 
         return new Metric
         {
-            Timestamp = DateTime.UtcNow,
+            Timestamp = timestamp,
             MetricName = name,
             Device = device,
             Value = value

@@ -1,4 +1,6 @@
 using Moq;
+using Scrapper.Data;
+using Scrapper.Domain;
 using Scrapper.Services;
 using Xunit;
 
@@ -24,7 +26,7 @@ namespace Scrapper.Tests.Services
                           .ReturnsAsync(1);
 
             // Act
-            var result = await _processor.ProcessAndSaveMetricsAsync(metrics);
+            var result = await _processor.ProcessAndSaveMetricsAsync(metrics, DateTime.UtcNow);
 
             // Assert
             Assert.Equal(1, result);

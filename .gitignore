@@ -1,0 +1,14 @@
+.vscode/
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.nupkg
+# Migrations (optional)
+Migrations/

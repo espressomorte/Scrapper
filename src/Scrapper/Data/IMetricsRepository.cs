@@ -1,4 +1,9 @@
-public interface IMetricsRepository
+using Scrapper.Domain;
+
+namespace Scrapper.Data
 {
-    Task<int> SaveMetricsAsync(List<Metric> metrics);
+    public interface IMetricsRepository
+    {
+        Task<int> SaveMetricsAsync(List<Metric> metrics);
+    }
 }

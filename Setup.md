@@ -1,7 +1,7 @@
   
 # **Scrapper Project Dependency Restoration and Setup Guide**
 
-### **1️⃣ Ensure .NET SDK 9 is installed**
+### ** Ensure .NET SDK 9 is installed**
 
 Check your current SDK:
 
@@ -17,18 +17,7 @@ Verify installation:
 
 ----------
 
-### **2️⃣ Restore NuGet packages**
-
-Make sure your `.csproj` includes all necessary dependencies. Example:
-
-    ```markdown
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
-    <PackageReference Include="PacketDotNet" Version="1.4.8" />
-    <PackageReference Include="Serilog" Version="4.3.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    ```
+### ** Restore NuGet packages**
 
 Restore all packages:
 
@@ -36,7 +25,7 @@ Restore all packages:
 
 ----------
 
-### **3️⃣ Install EF Core CLI (`dotnet-ef`)**
+### ** Install EF Core CLI (`dotnet-ef`)**
 
 `dotnet tool install --global dotnet-ef export PATH="$PATH:$HOME/.dotnet/tools"` 
 
@@ -46,9 +35,7 @@ Check installation:
 
 ----------
 
-### **4️⃣ Initialize the database (first-time setup)**
-
-#### Option 1: Using migrations
+### ** Initialize the database (first-time setup)**
 
 # Create initial migration
 ```console
@@ -60,20 +47,11 @@ dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-#### Option 2: Auto-create tables (simpler for dev/testing)
-
-In your `DbContext` initialization code:
-
-`using (var context = new MetricsDbContext())
-{
-    context.Database.EnsureCreated();
-}` 
-
 > This will create the database and tables if they do not exist.
 
 ----------
 
-### **5️⃣ Install and run Prometheus Node Exporter**
+### ** Install and run Prometheus Node Exporter**
 
 If your Scrapper collects metrics from Node Exporter:
 
@@ -92,7 +70,7 @@ Verify it's running:
 
 ----------
 
-### **6️⃣ Verify project setup**
+### ** Verify project setup**
 
 Run your project:
 

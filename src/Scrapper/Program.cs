@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Scrapper.Services;
+using Scrapper.Data;
 
 
 Serilog.Log.Logger = new LoggerConfiguration()

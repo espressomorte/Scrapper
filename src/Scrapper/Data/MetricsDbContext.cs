@@ -1,11 +1,14 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-
-public class MetricsDbContext : DbContext
+using Scrapper.Domain;
+namespace Scrapper.Data
 {
-    public DbSet<Metric> NetworkMetrics => Set<Metric>();
-
-    public MetricsDbContext(DbContextOptions<MetricsDbContext> options) : base(options)
+    public class MetricsDbContext : DbContext
     {
+        public DbSet<Metric> NetworkMetrics => Set<Metric>();
+
+        public MetricsDbContext(DbContextOptions<MetricsDbContext> options) : base(options)
+        {
+        }
     }
 }

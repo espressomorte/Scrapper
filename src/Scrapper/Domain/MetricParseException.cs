@@ -1,13 +1,17 @@
-public partial class MetricsCollectorService
+namespace Scrapper.Domain
 {
-    [Serializable]
-    public class MetricParseException : System.Exception
+    public partial class MetricsCollectorService
     {
-        public MetricParseException() { }
-        public MetricParseException(string message) : base(message) { }
-        public MetricParseException(string message, System.Exception inner) : base(message, inner) { }
-        protected MetricParseException(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) { }
+        [Serializable]
+        public class MetricParseException : System.Exception
+        {
+            public MetricParseException() { }
+            public MetricParseException(string message) : base(message) { }
+            public MetricParseException(string message, System.Exception inner) : base(message, inner) { }
+            protected MetricParseException(
+                System.Runtime.Serialization.SerializationInfo info,
+                System.Runtime.Serialization.StreamingContext context)
+            { }
+        }
     }
 }

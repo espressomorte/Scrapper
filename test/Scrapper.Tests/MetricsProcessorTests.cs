@@ -1,4 +1,5 @@
 using Moq;
+using Scrapper.Data;
 using Scrapper.Services;
 using Xunit;
 
