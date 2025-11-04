@@ -7,92 +7,91 @@ using static Scrapper.Domain.MetricsCollectorService;
 namespace Scrapper.Services
 {
     public class MetricsProcessor : IMetricsProcessor
-{
-    private readonly IMetricsRepository _metricRepository;
-    private readonly string[] _prefixes = { "node_network_", "node_netstat_", "node_sockstat_" };
-
-    public MetricsProcessor(IMetricsRepository metricRepository)
     {
-        _metricRepository = metricRepository;
-    }
+        private readonly IMetricsRepository _metricRepository;
+        private readonly string[] _prefixes = { "node_network_", "node_netstat_", "node_sockstat_" };
 
-    public async Task<int> ProcessAndSaveMetricsAsync(string metrics, DateTime timestamp)
-    {
-        var filtered = metrics
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Where(line => _prefixes.Any(p => line.StartsWith(p)))
-            .Where(line => !line.StartsWith("#")) // skip HELP/TYPE
-            .ToList();
-        var parsedMetrics = new List<Metric>();
-        var lineCounter = 1;
-
-        Log.Information("Processing {Count} raw metric lines.", filtered.Count);
-
-        foreach (var line in filtered)
+        public MetricsProcessor(IMetricsRepository metricRepository)
         {
-            try
+            _metricRepository = metricRepository;
+        }
+
+        public async Task<int> ProcessAndSaveMetricsAsync(string metrics, DateTime timestamp)
+        {
+            var filtered = metrics
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .Where(line => _prefixes.Any(p => line.StartsWith(p)))
+                .Where(line => !line.StartsWith("#")) // skip HELP/TYPE
+                .ToList();
+            var parsedMetrics = new List<Metric>();
+            var lineCounter = 1;
+
+            Log.Information("Processing {Count} raw metric lines.", filtered.Count);
+
+            foreach (var line in filtered)
             {
-                var metric = ParseMetricLine(line, timestamp);
-                parsedMetrics.Add(metric);
+                try
+                {
+                    var metric = ParseMetricLine(line, timestamp);
+                    parsedMetrics.Add(metric);
+                }
+                catch (MetricParseException)
+                {
+                    Log.Warning("Cannot parse metric line at line {line}", lineCounter++);
+                }
             }
-            catch (MetricParseException)
+            return await _metricRepository.SaveMetricsAsync(parsedMetrics);
+        }
+        private Metric ParseMetricLine(string line, DateTime timestamp)
+        {
+            var parts = line.Split(' ');
+            if (parts.Length != 2)
             {
-                Log.Warning("Cannot parse metric line at line {line}", lineCounter++);
+                throw new MetricParseException("Line doen't have two parts when split by space");
             }
-        }
-        return await _metricRepository.SaveMetricsAsync(parsedMetrics);
-    }
-    private Metric ParseMetricLine(string line, DateTime timestamp)
-    {
-        var parts = line.Split(' ');
-        if (parts.Length != 2)
-        {
-            throw new MetricParseException("Line doen't have two parts when split by space");
-        }
 
-        var nameAndLabels = parts[0];
-    double value;
-    if (double.TryParse(parts[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out value))
-    {
-        Console.WriteLine("Parsed with Any + InvariantCulture");
-    }
-    else if (double.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out value))
-    {
-        Console.WriteLine("Parsed with Float + InvariantCulture");
-    }
-    else if (double.TryParse(parts[1], out value))
-    {
-        Console.WriteLine("Parsed with default settings");
-    }
-    else
-    {
-        throw new MetricParseException($"Cannot parse value: {parts[1]}");
-    }
+            var nameAndLabels = parts[0];
+            double value;
 
-        var name = nameAndLabels.Split('{')[0];
+            if (!double.TryParse(parts[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out value))
+            {
+                throw new MetricParseException($"Cannot parse value: {parts[1]}");
+            }
 
-        var device = "unknown";
-        var labelStart = nameAndLabels.IndexOf('{');
-        if (labelStart > 0)
-        {
-            var labels = nameAndLabels.Substring(labelStart + 1, nameAndLabels.Length - labelStart - 2);
-            var devPair = labels.Split(',').FirstOrDefault(l => l.StartsWith("device="));
-            if (devPair != null)
-                device = devPair.Split('"')[1];
-        }
-        else
-        {
-            throw new MetricParseException();
+            var name = nameAndLabels.Split('{')[0];
+
+            var device = "unknown";
+            var labelStart = nameAndLabels.IndexOf('{');
+            if (labelStart > 0)
+            {
+                var labelContentLength = nameAndLabels.Length - labelStart - 2;
+
+                if (labelContentLength <= 0)
+                {
+                    throw new MetricParseException("Metric contain empty or broken label.");
+                }
+
+                var labels = nameAndLabels.Substring(labelStart + 1, labelContentLength);
+                var devPair = labels.Split(',')
+                                    .FirstOrDefault(l => l.Trim().StartsWith("device="));
+
+                if (devPair != null)
+                {
+                    var devParts = devPair.Split('"');
+                    if (devParts.Length >= 2)
+                    {
+                        device = devParts[1];
+                    }
+                }
+            }
+            return new Metric
+            {
+                Timestamp = timestamp,
+                MetricName = name,
+                Device = device,
+                Value = value
+            };
         }
 
-        return new Metric
-        {
-            Timestamp = timestamp,
-            MetricName = name,
-            Device = device,
-            Value = value
-        };
     }
-}
-
 }
