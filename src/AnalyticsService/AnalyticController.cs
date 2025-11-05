@@ -16,10 +16,6 @@ namespace AnalyticsService.Controllers
             _analyticsService = analyticsService;
         }
 
-        /// <summary>
-        /// Отримує агреговані дані використання мережі (Total, Average, Min, Max) 
-        /// для всіх пристроїв за вказану кількість останніх метрик.
-        /// </summary>
         [HttpGet("network-summary")]
         [ProducesResponseType(typeof(NetworkUsageSummary), 200)]
         public async Task<ActionResult<NetworkUsageSummary>> GetNetworkSummary([FromQuery] int limit = 100, [FromQuery] string metricNameFilter = "node_network_receive_bytes_total")

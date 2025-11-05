@@ -17,7 +17,7 @@ namespace AnalyticsService
     public class AnalyticsService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _scrapperBaseUrl = "http://localhost:5000"; // Приклад базової URL Scrapper API
+        private readonly string _scrapperBaseUrl = "http://localhost:5252"; // Приклад базової URL Scrapper API
 
         public AnalyticsService(HttpClient httpClient)
         {
