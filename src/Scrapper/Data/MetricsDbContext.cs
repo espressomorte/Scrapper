@@ -6,6 +6,7 @@ namespace Scrapper.Data
     public class MetricsDbContext : DbContext
     {
         public DbSet<Metric> NetworkMetrics => Set<Metric>();
+        public DbSet<NodeExporterSetting> NodeExporterSettings { get; set; }
 
         public MetricsDbContext(DbContextOptions<MetricsDbContext> options) : base(options)
         {
