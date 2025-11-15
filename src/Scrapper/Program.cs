@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Scrapper.Services;
 using Scrapper.Data;
+using Microsoft.OpenApi.Models;
 
 Serilog.Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -9,7 +10,6 @@ Serilog.Log.Logger = new LoggerConfiguration()
             .CreateLogger();
 
 Log.Information("Hello, world! I'm Scrapper.");
-
 
 var builder = WebApplication.CreateBuilder(args);
 var dbPath = Path.Combine(builder.Environment.ContentRootPath, "metrics.db");
@@ -19,22 +19,41 @@ builder.Services.AddDbContext<MetricsDbContext>(options =>
 builder.Services.AddHostedService<MetricsCollectorService>();
 builder.Services.AddSingleton<IMetricsRepository, MetricsRepository>();
 builder.Services.AddSingleton<IMetricsProcessor, MetricsProcessor>();
-builder.Services.AddControllers(); 
+builder.Services.AddScoped<IDiscoveryService, DiscoveryService>();
+builder.Services.AddControllers();
 
+builder.Services.AddEndpointsApiExplorer(); // Необхідно для Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Scrapper API", Version = "v1" });
+});
+builder.Services.AddHttpClient();
+
+builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowLocalhostUI",
                       policy =>
                       {
-                        policy.AllowAnyOrigin()
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
+                          policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
                       });
 });
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-app.UseCors("AllowLocalhostUI"); 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Scrapper API V1");
+        c.RoutePrefix = string.Empty; // Дозволяє доступ до UI за адресою http://localhost:5252/
+    });
+}
+
+//app.UseHttpsRedirection();
+app.UseCors("AllowLocalhostUI");
 app.MapControllers();
 
 app.Run();

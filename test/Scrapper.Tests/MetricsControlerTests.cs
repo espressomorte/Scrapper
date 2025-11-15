@@ -24,7 +24,7 @@ namespace Scrapper.Tests.Controllers
             // Arrange
             var mockData = new List<Metric>
             {
-                new Metric { MetricName = "cpu_usage", Device = "utun8", Value = 12.5, Timestamp = DateTime.UtcNow }
+                new Metric { MetricName = "cpu_usage", Device = "utun8", Value = 12.5, TimestampDateTime = DateTime.UtcNow }
             };
 
             _mockRepository.Setup(r => r.GetMetricsAsync(10, "utun8"))

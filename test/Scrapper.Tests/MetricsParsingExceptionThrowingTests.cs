@@ -2,10 +2,10 @@ using System;
 using System.Reflection;
 using System.Globalization;
 using FluentAssertions;
-using Moq; 
-using Scrapper.Domain; 
-using Scrapper.Services; 
-using Scrapper.Data; 
+using Moq;
+using Scrapper.Domain;
+using Scrapper.Services;
+using Scrapper.Data;
 using Xunit;
 using static Scrapper.Domain.MetricsCollectorService;
 
@@ -27,12 +27,12 @@ namespace Scrapper.Tests
         private Metric InvokeParseMetricLine(string line)
         {
             var parameterTypes = new Type[] { typeof(string), typeof(DateTime) };
-            var parseMetricLineMethod = typeof(MetricsProcessor).GetMethod("ParseMetricLine", 
-                BindingFlags.NonPublic | BindingFlags.Instance, 
+            var parseMetricLineMethod = typeof(MetricsProcessor).GetMethod("ParseMetricLine",
+                BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
                 new Type[] { typeof(string), typeof(DateTime) },
                 null);
-            
+
             if (parseMetricLineMethod == null)
             {
                 throw new InvalidOperationException("ParseMetricLine method not found. Check signature.");
@@ -41,7 +41,7 @@ namespace Scrapper.Tests
             // Виклик з двома аргументами (line та _testTimestamp)
             return (Metric)parseMetricLineMethod.Invoke(_processor, new object[] { line, _testTimestamp })!;
         }
-        
+
         [Fact]
         public void ParseMetricLine_ShouldReturnUnknownDevice_WhenNoLabelsArePresent()
         {
@@ -55,8 +55,8 @@ namespace Scrapper.Tests
             result.Should().NotBeNull();
             result.MetricName.Should().Be("node_up");
             result.Value.Should().Be(1.0);
-            result.Device.Should().Be("unknown"); 
-            result.Timestamp.Should().Be(_testTimestamp);
+            result.Device.Should().Be("unknown");
+            result.TimestampDateTime.Should().Be(_testTimestamp);
         }
 
         [Fact]

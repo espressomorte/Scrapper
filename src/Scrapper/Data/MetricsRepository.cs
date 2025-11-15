@@ -11,30 +11,39 @@ namespace Scrapper.Data
         {
             _scopeFactory = scopeFactory;
         }
-        public async Task<IEnumerable<Metric>> GetMetricsAsync(int limit, string? device = null)
+
+        private async Task<IEnumerable<Metric>> GetMetricsAsync(MetricQuery metricQuery)
         {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<MetricsDbContext>();
 
-            Log.Information("Fetching up to {Limit} metrics. Device filter: {Device}", limit, device ?? "None");
+            Log.Information("Fetching up to {Limit} metrics. Device filter: {Device}",
+                            metricQuery.Limit, metricQuery.Device ?? "None");
 
             IQueryable<Metric> query = db.NetworkMetrics;
 
-            if (!string.IsNullOrEmpty(device))
+            if (!string.IsNullOrEmpty(metricQuery.Device))
             {
-                query = query.Where(m => m.Device == device);
+                query = query.Where(m => m.Device == metricQuery.Device);
             }
             query = query.OrderByDescending(m => m.Timestamp);
 
             var metrics = await query
-                .Take(limit)
-                .AsNoTracking() 
+                .Take(metricQuery.Limit)
+                .AsNoTracking()
                 .ToListAsync();
 
             Log.Information("Fetched {Count} metrics from the database.", metrics.Count);
 
             return metrics;
         }
+
+        public async Task<IEnumerable<Metric>> GetMetricsAsync(int limit, string? device = null)
+        {
+            return await GetMetricsAsync(new MetricQuery { Limit = limit, Device = device });
+        }
+
+
         public async Task<int> SaveMetricsAsync(List<Metric> metrics)
         {
             using var scope = _scopeFactory.CreateScope();
@@ -50,4 +59,6 @@ namespace Scrapper.Data
             return savedCount;
         }
     }
+
+
 }
