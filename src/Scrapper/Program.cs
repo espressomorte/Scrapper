@@ -11,7 +11,6 @@ Serilog.Log.Logger = new LoggerConfiguration()
 
 Log.Information("Hello, world! I'm Scrapper.");
 
-
 var builder = WebApplication.CreateBuilder(args);
 var dbPath = Path.Combine(builder.Environment.ContentRootPath, "metrics.db");
 builder.Services.AddDbContext<MetricsDbContext>(options =>
@@ -49,7 +48,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Scrapper API V1");
-        c.RoutePrefix = string.Empty; // Дозволяє доступ до UI за адресою http://localhost:PORT/
+        c.RoutePrefix = string.Empty; // Дозволяє доступ до UI за адресою http://localhost:5252/
     });
 }
 

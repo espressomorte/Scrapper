@@ -40,29 +40,7 @@ namespace Scrapper.Data
 
         public async Task<IEnumerable<Metric>> GetMetricsAsync(int limit, string? device = null)
         {
-
             return await GetMetricsAsync(new MetricQuery { Limit = limit, Device = device });
-            // using var scope = _scopeFactory.CreateScope();
-            // var db = scope.ServiceProvider.GetRequiredService<MetricsDbContext>();
-
-            // Log.Information("Fetching up to {Limit} metrics. Device filter: {Device}", limit, device ?? "None");
-
-            // IQueryable<Metric> query = db.NetworkMetrics;
-
-            // if (!string.IsNullOrEmpty(device))
-            // {
-            //     query = query.Where(m => m.Device == device);
-            // }
-            // query = query.OrderByDescending(m => m.Timestamp);
-
-            // var metrics = await query
-            //     .Take(limit)
-            //     .AsNoTracking() 
-            //     .ToListAsync();
-
-            // Log.Information("Fetched {Count} metrics from the database.", metrics.Count);
-
-            // return metrics;
         }
 
 

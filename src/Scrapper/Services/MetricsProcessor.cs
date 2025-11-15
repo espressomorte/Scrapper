@@ -16,7 +16,7 @@ namespace Scrapper.Services
             _metricRepository = metricRepository;
         }
 
-        public async Task<int> ProcessAndSaveMetricsAsync(string metrics, DateTime timestamp)
+        public async Task<int> ProcessAndSaveMetricsAsync(string metrics, DateTime timestamp, int nodeExporterSettingId)
         {
             var filtered = metrics
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
@@ -32,7 +32,7 @@ namespace Scrapper.Services
             {
                 try
                 {
-                    var metric = ParseMetricLine(line, timestamp);
+                    var metric = ParseMetricLine(line, timestamp, nodeExporterSettingId);
                     parsedMetrics.Add(metric);
                 }
                 catch (MetricParseException)
@@ -42,7 +42,7 @@ namespace Scrapper.Services
             }
             return await _metricRepository.SaveMetricsAsync(parsedMetrics);
         }
-        private Metric ParseMetricLine(string line, DateTime timestamp)
+        private Metric ParseMetricLine(string line, DateTime timestamp, int nodeExporterSettingId)
         {
             var parts = line.Split(' ');
             if (parts.Length != 2)
@@ -86,7 +86,8 @@ namespace Scrapper.Services
             }
             return new Metric
             {
-                Timestamp = timestamp,
+                NodeExporterSettingId = nodeExporterSettingId,
+                TimestampDateTime = timestamp,
                 MetricName = name,
                 Device = device,
                 Value = value
