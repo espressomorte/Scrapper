@@ -10,5 +10,4 @@ public class NodeExporterSetting
 
     public bool IsEnabled { get; set; } = true;
 
-    public ICollection<Metric>? Metrics { get; set; }
 }

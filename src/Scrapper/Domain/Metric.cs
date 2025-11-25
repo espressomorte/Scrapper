@@ -15,8 +15,6 @@ namespace Scrapper.Domain
 
         public int NodeExporterSettingId { get; set; }
 
-        public NodeExporterSetting? NodeExporterSetting { get; set; }
-
         public DateTime TimestampDateTime
         {
             get => DateTimeOffset.FromUnixTimeSeconds(Timestamp).UtcDateTime;
